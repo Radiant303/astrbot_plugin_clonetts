@@ -1,0 +1,67 @@
+{
+    "url": {
+        "type": "string",
+        "description": "火山引擎音色复刻API 地址",
+        "default": "https://openspeech.bytedance.com/api/v1/tts"
+    },
+    "appid": {
+        "type": "string",
+        "description": "火山引擎应用 AppID",
+        "default": ""
+    },
+    "access_token": {
+        "type": "string",
+        "description": "火山引擎 Access Token",
+        "default": ""
+    },
+    "cluster": {
+        "type": "string",
+        "description": "集群名称（如 volcano_icl 表示音色克隆）",
+        "default": "volcano_icl"
+    },
+    "voice_type": {
+        "type": "string",
+        "description": "音色 ID（在火山引擎控制台获取）",
+        "default": ""
+    },
+    "uid": {
+        "type": "string",
+        "description": "用户 ID（用于火山引擎侧标识）",
+        "default": ""
+    },
+    "speed_ratio": {
+        "type": "float",
+        "description": "语速（0.5-2.0，1.0为正常速度）",
+        "default": 1.0
+    },
+    "volume_ratio": {
+        "type": "float",
+        "description": "音量（0.5-2.0，1.0为正常音量）",
+        "default": 1.0
+    },
+    "pitch_ratio": {
+        "type": "float",
+        "description": "音调（0.5-2.0，1.0为正常音调）",
+        "default": 1.0
+    },
+    "tts_probability": {
+        "type": "int",
+        "description": "TTS 回复概率(0-100)",
+        "default": 50
+    },
+    "max_length": {
+        "type": "int",
+        "description": "TTS 的最大字数，超出使用文字",
+        "default": 50
+    },
+    "min_length": {
+        "type": "int",
+        "description": "TTS 的最小字数，小于该字数不使用语音",
+        "default": 5
+    },
+    "enable_tts": {
+        "type": "bool",
+        "description": "启用该插件",
+        "default": true
+    }
+}
