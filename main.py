@@ -1,38 +1,43 @@
-import base64
-import json
 import random
-import uuid
 
-import requests
+from pydantic import Field
+from pydantic.dataclasses import dataclass
 
 import astrbot.api.message_components as Comp
 from astrbot.api import logger
 from astrbot.api.event import AstrMessageEvent, filter
 from astrbot.api.star import Context, Star, register
+from astrbot.core.agent.run_context import ContextWrapper
+from astrbot.core.agent.tool import FunctionTool, ToolExecResult
+from astrbot.core.astr_agent_context import AstrAgentContext
 from astrbot.core.config import AstrBotConfig
+from astrbot.core.provider.entities import LLMResponse
+
+from .tts_api.dy_tts_api import tts_http_stream
 
 
 @register(
     "astrbot_plugin_clonetts",
     "Radiant303",
     "基于火山引擎音色克隆(ICL)的文本转语音插件",
-    "1.0.0",
+    "2.0.0",
 )
 class CloneTTSPlugin(Star):
     def __init__(self, context: Context, config: AstrBotConfig):
         super().__init__(context)
-
         # --- 配置读取与防御性校验 ---
-        self.enable_tts = bool(config.get("enable_tts", False))
+        self.enable_tts = bool(config.get("enable_tts", True))
+        self.enable_llm_tool = bool(config.get("enable_llm_tool", True))
+        self.enable_llm_response = bool(config.get("enable_llm_response", False))
 
         # 概率 & 长度：强制转为数值并限制在合理范围
         try:
             self.tts_probability = max(
-                0, min(100, float(config.get("tts_probability", 100)))
+                0, min(100, float(config.get("tts_probability", 80)))
             )
         except (TypeError, ValueError):
             logger.warning("tts_probability 配置值无效，已使用默认值 100")
-            self.tts_probability = 100
+            self.tts_probability = 80
 
         try:
             self.max_length = max(1, int(config.get("max_length", 50)))
@@ -49,32 +54,22 @@ class CloneTTSPlugin(Star):
         # 凭证类字段：确保为非空字符串
         self.appid = str(config.get("appid") or "")
         self.access_token = str(config.get("access_token") or "")
-        self.cluster = str(config.get("cluster") or "volcano_icl")
         self.voice_type = str(config.get("voice_type") or "")
-        self.uid = str(config.get("uid") or "388808087185088")
 
         # 音频参数
         try:
-            self.speed_ratio = max(0.5, min(2.0, float(config.get("speed_ratio", 1.0))))
+            self.speed_ratio = max(-50, min(100, int(config.get("speed_ratio", 0))))
         except (TypeError, ValueError):
-            self.speed_ratio = 1.0
+            self.speed_ratio = 0
 
         try:
-            self.volume_ratio = max(
-                0.5, min(2.0, float(config.get("volume_ratio", 1.0)))
-            )
+            self.loudness_rate = max(-50, min(100, int(config.get("loudness_rate", 0))))
         except (TypeError, ValueError):
-            self.volume_ratio = 1.0
-
+            self.loudness_rate = 0
         try:
-            self.pitch_ratio = max(0.5, min(2.0, float(config.get("pitch_ratio", 1.0))))
+            self.sample_rate = int(config.get("sample_rate", 24000))
         except (TypeError, ValueError):
-            self.pitch_ratio = 1.0
-
-        # API 相关
-        self.api_url = str(
-            config.get("url") or "https://openspeech.bytedance.com/api/v1/tts"
-        )
+            self.sample_rate = 24000
 
         # 启动时预检关键配置
         missing = [
@@ -90,6 +85,7 @@ class CloneTTSPlugin(Star):
             logger.warning(
                 f"CloneTTS 以下必要配置为空，语音合成可能失败: {', '.join(missing)}"
             )
+        self.context.add_llm_tools(CloneTTSTool(plugin=self))
 
     async def initialize(self):
         """可选择实现异步的插件初始化方法，当实例化该插件类之后会自动调用该方法。"""
@@ -101,12 +97,17 @@ class CloneTTSPlugin(Star):
             if not self.enable_tts:
                 return
 
+            if not self.appid or not self.access_token or not self.voice_type:
+                logger.debug("配置未全，跳过 TTS")
+                return
+
             if not self.probability(self.tts_probability):
                 logger.debug("本次消息未命中 TTS 概率，跳过语音合成")
                 return
 
             result = event.get_result()
             if not result or not result.chain:
+                logger.debug("本次消息没有结果，跳过 TTS")
                 return
 
             text_parts = []
@@ -115,6 +116,7 @@ class CloneTTSPlugin(Star):
                     text_parts.append(component.text)
 
             if not text_parts:
+                logger.debug("本次消息没有文本，跳过 TTS")
                 return
 
             llm_text = "".join(text_parts).strip()
@@ -136,7 +138,7 @@ class CloneTTSPlugin(Star):
                 return
 
             logger.info(f"正在合成克隆语音: {llm_text}")
-            audio_b64 = await self.tts_synthesize(llm_text)
+            audio_b64 = await tts_http_stream(self, llm_text)
 
             if not audio_b64:
                 logger.warning("语音合成返回空数据，跳过本次语音回复")
@@ -159,97 +161,47 @@ class CloneTTSPlugin(Star):
         p = max(0.0, min(100.0, p))
         return random.random() < (p / 100)
 
-    async def tts_synthesize(self, text: str) -> str:
-        """
-        使用火山引擎 v1 音色克隆 API 进行文本转语音合成。
-
-        Args:
-            text: 要合成的文本内容
-
-        Returns:
-            str: 合成的音频 base64 编码字符串，失败时返回空字符串
-        """
-        # 输入文本校验
-        if not isinstance(text, str) or not text.strip():
-            logger.warning("tts_synthesize 收到无效文本，已跳过")
-            return ""
-
-        # 运行时凭证校验
-        required_fields = {
-            "appid": self.appid,
-            "access_token": self.access_token,
-            "voice_type": self.voice_type,
-        }
-        missing = [k for k, v in required_fields.items() if not v]
-        if missing:
-            raise RuntimeError(f"CloneTTS 缺少必要配置项: {', '.join(missing)}")
-
-        header = {"Authorization": f"Bearer;{self.access_token}"}
-
-        request_json = {
-            "app": {
-                "appid": self.appid,
-                "token": "access_token",
-                "cluster": self.cluster,
-            },
-            "user": {"uid": self.uid},
-            "audio": {
-                "voice_type": self.voice_type,
-                "encoding": "mp3",
-                "speed_ratio": self.speed_ratio,
-                "volume_ratio": self.volume_ratio,
-                "pitch_ratio": self.pitch_ratio,
-            },
-            "request": {
-                "reqid": str(uuid.uuid4()),
-                "text": text,
-                "text_type": "plain",
-                "operation": "query",
-                "with_frontend": 1,
-                "frontend_type": "unitTson",
-            },
-        }
-
-        try:
-            resp = requests.post(
-                self.api_url, json.dumps(request_json), headers=header, timeout=30
-            )
-
-            resp_json = resp.json()
-            logger.debug(f"CloneTTS API 响应状态码: {resp.status_code}")
-
-            if resp.status_code != 200:
-                raise RuntimeError(
-                    f"CloneTTS HTTP 错误: status={resp.status_code}, body={resp_json}"
-                )
-
-            # 检查业务状态码
-            code = resp_json.get("code", -1)
-            if code != 3000:
-                message = resp_json.get("message", "未知错误")
-                raise RuntimeError(
-                    f"CloneTTS 服务返回错误: code={code}, message={message}"
-                )
-
-            data = resp_json.get("data")
-            if not data:
-                logger.warning("CloneTTS 响应中无音频数据")
-                return ""
-
-            # 验证 base64 数据有效性
-            try:
-                base64.b64decode(data)
-            except Exception:
-                logger.warning("CloneTTS 返回的 base64 数据无效")
-                return ""
-
-            return data
-
-        except requests.RequestException as e:
-            raise RuntimeError(f"CloneTTS 请求失败: {e}") from e
-        except json.JSONDecodeError as e:
-            raise RuntimeError(f"CloneTTS 响应 JSON 解析失败: {e}") from e
-
     async def terminate(self):
         """可选择实现异步的插件销毁方法，当插件被卸载/停用时会调用。"""
         logger.info("CloneTTS plugin 已经停用/卸载")
+
+
+@dataclass
+class CloneTTSTool(FunctionTool[AstrAgentContext]):
+    name: str = "clone_tts"  # 工具名称
+    description: str = "将文本转为语言发送的工具"  # 工具描述
+    parameters: dict = Field(
+        default_factory=lambda: {
+            "type": "object",
+            "properties": {
+                "text": {
+                    "type": "string",
+                    "description": "需要转换为语言的文本",
+                },
+            },
+            "required": ["text"],
+        }
+    )
+
+    plugin: object = Field(default=None, repr=False)
+
+    async def call(
+        self, context: ContextWrapper[AstrAgentContext], **kwargs
+    ) -> ToolExecResult:
+        text = kwargs.get("text")
+        if not self.plugin:
+            return "插件未正确初始化"
+        if not self.plugin.enable_llm_tool:
+            return "LLM 工具未启用"
+        if not text:
+            return "文本不能为空"
+        audio_b64 = await tts_http_stream(self.plugin, text)
+        if not audio_b64:
+            return "语音合成失败"
+        await context.context.event.send(
+            context.context.event.chain_result([Comp.Record.fromBase64(audio_b64)])
+        )
+        if not self.plugin.enable_llm_response:
+            context.context.event.stop_event()
+            return "SUCCESS AND STOP REPLAY"
+        return "SUCCESS"
