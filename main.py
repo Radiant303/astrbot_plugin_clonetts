@@ -165,6 +165,21 @@ class CloneTTSPlugin(Star):
         """可选择实现异步的插件销毁方法，当插件被卸载/停用时会调用。"""
         logger.info("CloneTTS plugin 已经停用/卸载")
 
+    @filter.on_llm_response()
+    async def handle_silence(self, event: AstrMessageEvent, resp: LLMResponse):
+            if event.get_extra("voice_silence_mode"):
+                # 1. 消除标记
+                event.set_extra("voice_silence_mode", False)
+
+                # 2. 核心：将模型的文本强制修改为 \u200b (零宽空格)
+                # 这样做的效果：
+                # - Runner 看到 resp 有内容 (len(parts) > 0)，消除 "LLM returned empty" 警告。
+                # - Responder 看到消息链不为空，消除 "消息链全为 Reply" 警告。
+                # - 用户在前端什么都看不到，实现“模型不说话”的效果。
+                resp.completion_text = "\u200b"
+
+                # 3. 停止事件防止后续可能的冗余处理
+                event.stop_event()
 
 @dataclass
 class CloneTTSTool(FunctionTool[AstrAgentContext]):
@@ -202,6 +217,5 @@ class CloneTTSTool(FunctionTool[AstrAgentContext]):
             context.context.event.chain_result([Comp.Record.fromBase64(audio_b64)])
         )
         if not self.plugin.enable_llm_response:
-            context.context.event.stop_event()
-            return "SUCCESS AND STOP REPLAY"
+            context.context.event.set_extra("voice_silence_mode", True)
         return "SUCCESS"
