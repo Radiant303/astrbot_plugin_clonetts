@@ -204,6 +204,11 @@ class CloneTTSTool(FunctionTool[AstrAgentContext]):
         self, context: ContextWrapper[AstrAgentContext], **kwargs
     ) -> ToolExecResult:
         text = kwargs.get("text")
+        if len(str(text)) > self.plugin.max_length:
+            return  f"LLM 文本长度超过上限 {self.max_length}，跳过语音合成"
+
+        if len(str(text)) < self.plugin.min_length:
+            return f"LLM 文本长度小于下限 {self.min_length}，跳过语音合成"
         if not self.plugin:
             return "插件未正确初始化"
         if not self.plugin.enable_llm_tool:

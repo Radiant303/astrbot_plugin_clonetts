@@ -4,6 +4,7 @@
 
 - 🐞 增加错误日志debug信息。
 - 🐞 修复当 `enable_llm_response` 关闭时模型继续回复用户的bug。
+- ⚙️ 使LLM工具调用的语音回复也受 `tts_probability` 和长度限制的控制，避免过度触发。
 
 ## v2.0.0 (2026-03-10)
 
