@@ -75,7 +75,7 @@ async def tts_http_stream(self, text):
 
                 # 返回base64编码数据
                 if not audio_data:
-                    logger.warning("流结束但未收到任何音频数据")
+                    logger.warning(f"流结束但未收到任何音频数据:{audio_data}")
                     return None
 
                 try:
