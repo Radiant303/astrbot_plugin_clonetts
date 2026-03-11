@@ -31,21 +31,21 @@
 
 ### 2. 回到刚刚的[火山引擎](https://console.volcengine.com/speech/new/overview?projectName=default)
 
-### 3. ![1773151167896](image/README/1773151167896.png)
+### 3. ![1773151167896.png](https://free.picui.cn/free/2026/03/11/69b0f7fc9339c.png)
 
-### 4. ![1773151183200](image/README/1773151183200.png)
+### 4. ![1773151183200.png](https://free.picui.cn/free/2026/03/11/69b0f7fc9937c.png)
 
-### 5. ![1773151195702](image/README/1773151195702.png)
+### 5. ![1773151195702.png](https://free.picui.cn/free/2026/03/11/69b0f7fcce286.png)
 
 ### 6. 成功后返回这个页面 并切换到旧版
 
-### ![1773151225265](image/README/1773151225265.png)
+### ![1773151225265.png](https://free.picui.cn/free/2026/03/11/69b0f7fcb8ba4.png)
 
-### 7. ![1773151231623](image/README/1773151231623.png)
+### ![1773151231623.png](https://free.picui.cn/free/2026/03/11/69b0f7fe6eb1e.png)
 
 ### 8. 划到底部
 
-### 9. ![1773151245322](image/README/1773151245322.png)
+### 9. ![1773151245322.png](https://free.picui.cn/free/2026/03/11/69b0f7fea5d20.png)
 
 ---
 
@@ -66,7 +66,7 @@
 | `max_length`          | `int`    | `50`    | 被动 TTS 最大处理字数                            |
 | `min_length`          | `int`    | `5`     | 被动 TTS 最小处理字数                            |
 | `enable_llm_tool`     | `bool`   | `true`  | 是否启用 LLM 工具，允许 AI 主动调用语音合成      |
-| `enable_llm_response` | `bool`   | `false` | ![1773150294051](image/README/1773150294051.png) |
+| `enable_llm_response` | `bool`   | `false` | ![1773150294051.png](https://free.picui.cn/free/2026/03/11/69b0f7fc468c3.png) |
 
 ---
 
