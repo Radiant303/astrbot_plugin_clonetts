@@ -48,6 +48,7 @@ async def tts_http_stream(self, text):
                 # 处理 SSE stream
                 audio_data = bytearray()
                 async for line in response.content:
+                    logger.debug(f"Raw SSE Line: {repr(line)}")
                     if line:
                         line_str = line.decode("utf-8").strip()
                         if not line_str or not line_str.startswith("data:"):
