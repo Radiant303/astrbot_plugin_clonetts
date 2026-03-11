@@ -54,7 +54,7 @@ async def tts_http_stream(self, text):
                             continue
 
                         try:
-                            data_str = line_str[5:].strip()  # 安全截取并去空
+                            data_str = line_str[len("data: "):]
                             if data_str:
                                 data = json.loads(data_str)
                                 if (
