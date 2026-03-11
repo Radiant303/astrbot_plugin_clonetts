@@ -41,7 +41,7 @@
 
 ### ![1773151225265.png](https://free.picui.cn/free/2026/03/11/69b0f7fcb8ba4.png)
 
-### ![1773151231623.png](https://free.picui.cn/free/2026/03/11/69b0f7fe6eb1e.png)
+### 7. ![1773151231623.png](https://free.picui.cn/free/2026/03/11/69b0f7fe6eb1e.png)
 
 ### 8. 划到底部
 
