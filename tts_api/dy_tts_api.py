@@ -9,7 +9,7 @@ from astrbot.api import logger
 # python version: ==3.11
 
 
-async def tts_http_stream(self, text):
+async def tts_http_stream(self, text,context_texts):
     headers = {
         "X-Api-App-Id": self.appid,
         "X-Api-Access-Key": self.access_token,
@@ -17,7 +17,23 @@ async def tts_http_stream(self, text):
         "Content-Type": "application/json",
         "Connection": "keep-alive",
     }
+    ctx_list = []
+    if context_texts:
+        if isinstance(context_texts, str):
+            ctx_list = [context_texts]
+        elif isinstance(context_texts, list):
+            ctx_list = context_texts
+        else:
+            logger.warning(f"Invalid context_texts type: {type(context_texts)}, expected str or list.")
 
+    additions_payload = {
+            "explicit_language": "zh-cn",
+            "disable_markdown_filter": True,
+            "enable_latex_tn": True,
+        }
+    if ctx_list:
+        additions_payload["context_texts"] = ctx_list
+    additions_json_str = json.dumps(additions_payload, ensure_ascii=False)
     params = {
         "user": {
             "uid": f"{uuid.uuid4()}",
@@ -32,7 +48,7 @@ async def tts_http_stream(self, text):
                 "speech_rate": self.speed_ratio,
                 "loudness_rate": self.loudness_rate,
             },
-            "additions": '{"explicit_language":"zh-cn","disable_markdown_filter":true, "enable_latex_tn":true}',
+            "additions":additions_json_str,
         },
     }
 

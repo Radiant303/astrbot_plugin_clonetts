@@ -20,7 +20,7 @@ from .tts_api.dy_tts_api import tts_http_stream
     "astrbot_plugin_clonetts",
     "Radiant303",
     "基于火山引擎音色克隆(ICL)的文本转语音插件",
-    "2.0.0",
+    "2.0.4",
 )
 class CloneTTSPlugin(Star):
     def __init__(self, context: Context, config: AstrBotConfig):
@@ -29,6 +29,7 @@ class CloneTTSPlugin(Star):
         self.enable_tts = bool(config.get("enable_tts", True))
         self.enable_llm_tool = bool(config.get("enable_llm_tool", True))
         self.enable_llm_response = bool(config.get("enable_llm_response", False))
+        self.llm_recognition = config.get("llm_recognition", "")
 
         # 概率 & 长度：强制转为数值并限制在合理范围
         try:
@@ -137,8 +138,20 @@ class CloneTTSPlugin(Star):
                 )
                 return
 
+            if self.llm_recognition:
+                provider_id = self.llm_recognition
+            else:
+                logger.debug("未指定 LLM 识别模型，使用当前聊天模型")
+                umo = event.unified_msg_origin
+                provider_id = await self.context.get_current_chat_provider_id(umo=umo)
+            llm_resp = await self.context.llm_generate(
+                chat_provider_id=provider_id, # 聊天模型 ID
+                prompt=f"你是一个语气风格分析助手。请根据句子“{llm_text}”：判断其核心情绪和语气强度用更具表现力的词语进行描述然后生成一句语气指令，要求：使用自然口语表达语气描述具体且有画面感（避免泛泛如“很难过”）句式固定为：“你可以用……的语气说话吗？”只输出该句，不要输出其他内容",
+            )
+            context_texts = llm_resp.completion_text
+            logger.debug(f"使用的语气风格: {context_texts}")
             logger.info(f"正在合成克隆语音: {llm_text}")
-            audio_b64 = await tts_http_stream(self, llm_text)
+            audio_b64 = await tts_http_stream(self, llm_text,context_texts)
 
             if not audio_b64:
                 logger.warning("语音合成返回空数据，跳过本次语音回复")
@@ -193,8 +206,12 @@ class CloneTTSTool(FunctionTool[AstrAgentContext]):
                     "type": "string",
                     "description": "需要转换为语言的文本",
                 },
+                "context_texts": {
+                    "type": "string",
+                    "description": "使用自然口语表达语气描述具体且有画面感（避免泛泛如“很难过”）句式固定为：“你可以用……的语气说话吗？”",
+                },
             },
-            "required": ["text"],
+            "required": ["text","context_texts"],
         }
     )
 
@@ -205,17 +222,18 @@ class CloneTTSTool(FunctionTool[AstrAgentContext]):
     ) -> ToolExecResult:
         text = kwargs.get("text")
         if len(str(text)) > self.plugin.max_length:
-            return  f"LLM 文本长度超过上限 {self.max_length}，跳过语音合成"
+            return  f"LLM 文本长度超过上限 {self.plugin.max_length}，跳过语音合成"
 
         if len(str(text)) < self.plugin.min_length:
-            return f"LLM 文本长度小于下限 {self.min_length}，跳过语音合成"
+            return f"LLM 文本长度小于下限 {plugin.min_length}，跳过语音合成"
         if not self.plugin:
             return "插件未正确初始化"
         if not self.plugin.enable_llm_tool:
             return "LLM 工具未启用"
         if not text:
             return "文本不能为空"
-        audio_b64 = await tts_http_stream(self.plugin, text)
+        context_texts = kwargs.get("context_texts")
+        audio_b64 = await tts_http_stream(self.plugin, text,context_texts)
         if not audio_b64:
             return "语音合成失败"
         await context.context.event.send(
