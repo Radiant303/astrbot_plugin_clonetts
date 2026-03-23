@@ -20,7 +20,7 @@ from .tts_api.dy_tts_api import tts_http_stream
     "astrbot_plugin_clonetts",
     "Radiant303",
     "基于火山引擎音色克隆(ICL)的文本转语音插件",
-    "2.1.5",
+    "2.1.6",
 )
 class CloneTTSPlugin(Star):
     def __init__(self, context: Context, config: AstrBotConfig):
@@ -225,7 +225,7 @@ class CloneTTSTool(FunctionTool[AstrAgentContext]):
             return  f"LLM 文本长度超过上限 {self.plugin.max_length}，跳过语音合成"
 
         if len(str(text)) < self.plugin.min_length:
-            return f"LLM 文本长度小于下限 {plugin.min_length}，跳过语音合成"
+            return f"LLM 文本长度小于下限 {self.plugin.min_length}，跳过语音合成"
         if not self.plugin:
             return "插件未正确初始化"
         if not self.plugin.enable_llm_tool:
