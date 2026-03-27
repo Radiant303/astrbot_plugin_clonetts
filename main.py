@@ -20,7 +20,7 @@ from .tts_api.dy_tts_api import tts_http_stream
     "astrbot_plugin_clonetts",
     "Radiant303",
     "基于火山引擎音色克隆(ICL)的文本转语音插件",
-    "2.1.6",
+    "2.1.7",
 )
 class CloneTTSPlugin(Star):
     def __init__(self, context: Context, config: AstrBotConfig):
@@ -197,18 +197,18 @@ class CloneTTSPlugin(Star):
 @dataclass
 class CloneTTSTool(FunctionTool[AstrAgentContext]):
     name: str = "clone_tts"  # 工具名称
-    description: str = "将文本转为语言发送的工具"  # 工具描述
+    description: str = "将文本转为语音发送的工具,当用户需要听到声音或者让你说话时候调用"  # 工具描述
     parameters: dict = Field(
         default_factory=lambda: {
             "type": "object",
             "properties": {
                 "text": {
                     "type": "string",
-                    "description": "需要转换为语言的文本",
+                    "description": "需要转换为语音的文本",
                 },
                 "context_texts": {
                     "type": "string",
-                    "description": "根据需要转换为语言的文本，深度分析其语境、潜台词和情感流动，然后生成一组用于调整 AI 语音生成的“单句整体风格化”指令。输出一个输出一个指令字符串，旨在指导语音模型调整**语速、情绪/语气、音量、音感/音色**。1. **深度拆解**：分析句子的字面意思与深层含义（如：自嘲、反讽、压抑后的爆发、无奈的叹息等）。 2. **情感定位**：确定核心情绪基调（如：痛心、欢乐、骄傲、苦涩、挑衅）。 3. **动态规划**：判断句子内部是否有情绪转折（如：从前半句的平静到后半句的激动），如果有，需拆分为多条指令分别描述。 4. **指令生成**：将分析结果转化为用户示例中的自然语言指令格式。**必须**只输出一个字符串。 - **不要**输出任何分析过程、解释或额外的文字。 - 指令必须使用自然语言，模仿人类对配音演员的口吻（例如：“你可以用...语气吗？”，“...再...一点”，“嗓门再...点”）。 - 覆盖维度：确保生成的指令涵盖 **语速**、**情绪**、**语气**、**音量**、**音感** 中的五个维度。",
+                    "description": "根据需要转换为语音的文本，深度分析其语境、潜台词和情感流动，然后生成一组用于调整 AI 语音生成的“单句整体风格化”指令。输出一个输出一个指令字符串，旨在指导语音模型调整**语速、情绪/语气、音量、音感/音色**。1. **深度拆解**：分析句子的字面意思与深层含义（如：自嘲、反讽、压抑后的爆发、无奈的叹息等）。 2. **情感定位**：确定核心情绪基调（如：痛心、欢乐、骄傲、苦涩、挑衅）。 3. **动态规划**：判断句子内部是否有情绪转折（如：从前半句的平静到后半句的激动），如果有，需拆分为多条指令分别描述。 4. **指令生成**：将分析结果转化为用户示例中的自然语言指令格式。**必须**只输出一个字符串。 - **不要**输出任何分析过程、解释或额外的文字。 - 指令必须使用自然语言，模仿人类对配音演员的口吻（例如：“你可以用...语气吗？”，“...再...一点”，“嗓门再...点”）。 - 覆盖维度：确保生成的指令涵盖 **语速**、**情绪**、**语气**、**音量**、**音感** 中的五个维度。",
                 },
             },
             "required": ["text","context_texts"],
@@ -221,11 +221,12 @@ class CloneTTSTool(FunctionTool[AstrAgentContext]):
         self, context: ContextWrapper[AstrAgentContext], **kwargs
     ) -> ToolExecResult:
         text = kwargs.get("text")
-        if len(str(text)) > self.plugin.max_length:
-            return  f"LLM 文本长度超过上限 {self.plugin.max_length}，跳过语音合成"
+        if self.plugin.enable_tts_tool_minmax:
+            if len(str(text)) > self.plugin.max_length:
+                return  f"LLM 文本长度超过上限 {self.plugin.max_length}，跳过语音合成"
 
-        if len(str(text)) < self.plugin.min_length:
-            return f"LLM 文本长度小于下限 {self.plugin.min_length}，跳过语音合成"
+            if len(str(text)) < self.plugin.min_length:
+                return f"LLM 文本长度小于下限 {self.plugin.min_length}，跳过语音合成"
         if not self.plugin:
             return "插件未正确初始化"
         if not self.plugin.enable_llm_tool:

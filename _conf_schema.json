@@ -55,6 +55,11 @@
         "description": "启用 LLM 工具",
         "default": true
     },
+    "enable_tts_tool_minmax": {
+        "type": "bool",
+        "description": "是否让LLM工具受字数限制控制",
+        "default": true
+    },
     "enable_llm_response": {
         "type": "bool",
         "description": "是否允许LLM发送语音后继续回复",
