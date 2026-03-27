@@ -20,7 +20,7 @@ from .tts_api.dy_tts_api import tts_http_stream
     "astrbot_plugin_clonetts",
     "Radiant303",
     "基于火山引擎音色克隆(ICL)的文本转语音插件",
-    "2.1.7",
+    "2.1.8",
 )
 class CloneTTSPlugin(Star):
     def __init__(self, context: Context, config: AstrBotConfig):
@@ -29,7 +29,7 @@ class CloneTTSPlugin(Star):
         self.enable_tts = bool(config.get("enable_tts", True))
         self.enable_llm_tool = bool(config.get("enable_llm_tool", True))
         self.enable_llm_response = bool(config.get("enable_llm_response", False))
-        self.enable_tts_tool_minmax = config.get("enable_llm_tool_minmax", True)
+        self.enable_tts_tool_minmax = bool(config.get("enable_tts_tool_minmax", True))
         self.llm_recognition = config.get("llm_recognition", "")
 
         # 概率 & 长度：强制转为数值并限制在合理范围
@@ -223,6 +223,7 @@ class CloneTTSTool(FunctionTool[AstrAgentContext]):
     ) -> ToolExecResult:
         text = kwargs.get("text")
         if self.plugin.enable_tts_tool_minmax:
+            logger.debug(f"LLM 将会受到长度限制{self.plugin.enable_tts_tool_minmax}")
             if len(str(text)) > self.plugin.max_length:
                 return  f"LLM 文本长度超过上限 {self.plugin.max_length}，跳过语音合成"
 
