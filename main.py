@@ -29,6 +29,7 @@ class CloneTTSPlugin(Star):
         self.enable_tts = bool(config.get("enable_tts", True))
         self.enable_llm_tool = bool(config.get("enable_llm_tool", True))
         self.enable_llm_response = bool(config.get("enable_llm_response", False))
+        self.enable_tts_tool_minmax = config.get("enable_llm_tool_minmax", True)
         self.llm_recognition = config.get("llm_recognition", "")
 
         # 概率 & 长度：强制转为数值并限制在合理范围
