@@ -20,7 +20,7 @@ from .tts_api.dy_tts_api import tts_http_stream
     "astrbot_plugin_clonetts",
     "Radiant303",
     "基于火山引擎音色克隆(ICL)的文本转语音插件",
-    "2.2.0",
+    "2.2.1",
 )
 class CloneTTSPlugin(Star):
     def __init__(self, context: Context, config: AstrBotConfig):

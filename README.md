@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Radiant303/astrbot_plugin_clonetts"><img src="https://img.shields.io/badge/version-v2.2.0-blue" alt="version" /></a>
+  <a href="https://github.com/Radiant303/astrbot_plugin_clonetts"><img src="https://img.shields.io/badge/version-v2.2.1-blue" alt="version" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-green" alt="license" /></a>
   <a href="https://docs.astrbot.app/dev/star/plugin-new.html"><img src="https://img.shields.io/badge/docs-AstrBot-orange" alt="docs" /></a>
 </p>
@@ -18,6 +18,8 @@
 ## 如果你觉得教程太繁琐或者有问题 可以提交issu或者联系我提供技术支持
 
 #### qq 3511078185 (申请好友时备注插件名😊,记得点star!)
+
+## 本插件不依赖AstrBot的TTS功能,所以你不需要额外配置AstrBot的tts,只需要按照以下教程获取火山引擎的凭证并配置到插件里就可以了
 
 ## 📋 前置要求
 

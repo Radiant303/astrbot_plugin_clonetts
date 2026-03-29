@@ -4,6 +4,10 @@
   <img src="https://count.getloli.com/@astrbotpluginclonetts?name=astrbotpluginclonetts&theme=miku&padding=7&offset=0&align=center&scale=0.3&pixelated=1&darkmode=auto" alt="visitor count" />
 </p>
 
+## v2.2.1 (2026-03-29)
+
+- 📝 更新了README.md文档
+
 ## v2.2.0 (2026-03-27)
 
 - 🚀新增可调节LLM是否受到字数限制控制的选项
