@@ -142,8 +142,16 @@ astrbot_plugin_clonetts/
 
 ---
 
-## 📄 许可证
 
-本项目基于 [GNU Affero General Public License v3.0](LICENSE) 开源。
+## ⭐ Star History
 
-Copyright © 2026 Radiant303
+> [!TIP]
+> 如果本项目对您的生活 / 工作产生了帮助，或者您关注本项目的未来发展，请给项目 Star，这是我们维护这个开源项目的动力 <3
+
+<div align="center">
+
+[![Star History Chart](https://api.star-history.com/image?repos=Radiant303/astrbot_plugin_clonetts&type=date&legend=top-left)](https://www.star-history.com/?repos=Radiant303%2Fastrbot_plugin_clonetts&type=date&legend=top-left)
+
+</div>
+
+
