@@ -4,6 +4,10 @@
   <img src="https://count.getloli.com/@astrbotpluginclonetts?name=astrbotpluginclonetts&theme=miku&padding=7&offset=0&align=center&scale=0.3&pixelated=1&darkmode=auto" alt="visitor count" />
 </p>
 
+## v2.3.0 (2026-04-10)
+
+- 🐞 修复了Q官Bot发送语音失败的问题
+
 ## v2.2.1 (2026-03-29)
 
 - 📝 更新了README.md文档

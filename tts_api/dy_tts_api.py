@@ -6,6 +6,7 @@ import aiohttp
 
 from astrbot.api import logger
 
+from ..utils.mp3_base64_to_wav_base64 import mp3_base64_to_wav_base64
 # python version: ==3.11
 
 
@@ -100,7 +101,8 @@ async def tts_http_stream(self, text,context_texts):
 
                 try:
                     base64_audio_data = base64.b64encode(audio_data).decode("utf-8")
-                    return base64_audio_data
+                    base64_audio_data_wav = mp3_base64_to_wav_base64(base64_audio_data)
+                    return base64_audio_data_wav
                 except Exception as e:
                     logger.error(f"Base64 encoding failed: {e}")
 

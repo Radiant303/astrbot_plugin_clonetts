@@ -1,2 +1,4 @@
 aiohttp
 pydantic
+pydub
+ffmpeg
