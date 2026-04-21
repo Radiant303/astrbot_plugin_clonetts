@@ -30,6 +30,7 @@ class CloneTTSPlugin(Star):
         self.enable_llm_tool = bool(config.get("enable_llm_tool", True))
         self.enable_llm_response = bool(config.get("enable_llm_response", False))
         self.enable_tts_tool_minmax = bool(config.get("enable_tts_tool_minmax", True))
+        self.blocked_words = config.get("blocked_words", [])
         self.llm_recognition = config.get("llm_recognition", "")
 
         # 概率 & 长度：强制转为数值并限制在合理范围
@@ -137,6 +138,11 @@ class CloneTTSPlugin(Star):
                 logger.debug(
                     f"LLM 文本长度 {len(llm_text)} 小于下限 {self.min_length}，跳过语音合成"
                 )
+                return
+            if self.blocked_words and any(
+                word in llm_text for word in self.blocked_words
+            ):
+                logger.debug("LLM 输出包含屏蔽词，跳过语音合成")
                 return
 
             if self.llm_recognition:

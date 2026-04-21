@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Radiant303/astrbot_plugin_clonetts"><img src="https://img.shields.io/badge/version-v2.3.0-blue" alt="version" /></a>
+  <a href="https://github.com/Radiant303/astrbot_plugin_clonetts"><img src="https://img.shields.io/badge/version-v2.3.1-blue" alt="version" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-green" alt="license" /></a>
   <a href="https://docs.astrbot.app/dev/star/plugin-new.html"><img src="https://img.shields.io/badge/docs-AstrBot-orange" alt="docs" /></a>
 </p>
@@ -60,20 +60,23 @@
 
 安装后在 AstrBot 管理面板的 **插件配置** 中找到 `克隆语音`，填写以下参数：
 
-| 参数                  | 类型     | 默认值  | 说明                                             |
-| --------------------- | -------- | ------- | ------------------------------------------------ |
-| `enable_tts`          | `bool`   | `true`  | 是否启用该插件                                   |
-| `appid`               | `string` | `""`    | 火山引擎应用 AppID **（必填）**                  |
-| `access_token`        | `string` | `""`    | 火山引擎 Access Token **（必填）**               |
-| `voice_type`          | `string` | `""`    | 克隆音色 ID **（必填）**                         |
-| `speed_ratio`         | `int`    | `0`     | 语速 (-50 到 100，0 为正常，100 为 2 倍)         |
-| `loudness_rate`       | `int`    | `0`     | 音量 (-50 到 100，0 为正常，100 为 2 倍)         |
-| `sample_rate`         | `int`    | `24000` | 采样率 (推荐 24000)                              |
-| `tts_probability`     | `int`    | `80`    | 被动回复概率 (0–100)，0 = 永不触发               |
-| `max_length`          | `int`    | `50`    | 被动 TTS 最大处理字数                            |
-| `min_length`          | `int`    | `5`     | 被动 TTS 最小处理字数                            |
-| `enable_llm_tool`     | `bool`   | `true`  | 是否启用 LLM 工具，允许 AI 主动调用语音合成      |
+| 参数                     | 类型     | 默认值  | 说明                                                                 |
+| ------------------------ | -------- | ------- | -------------------------------------------------------------------- |
+| `enable_tts`             | `bool`   | `true`  | 全局 TTS 开关，关闭后不进行任何语音合成                               |
+| `appid`                  | `string` | `""`    | 火山引擎应用 AppID **（必填）**                                      |
+| `access_token`           | `string` | `""`    | 火山引擎 Access Token **（必填）**                                   |
+| `voice_type`             | `string` | `""`    | 克隆音色 ID（Speaker ID）**（必填）**                               |
+| `speed_ratio`            | `int`    | `0`     | 语速，范围 `-50` ~ `100`（`0`=正常，`100`=2 倍，`-50`=0.5 倍）       |
+| `loudness_rate`          | `int`    | `0`     | 音量，范围 `-50` ~ `100`（`0`=正常，`100`=2 倍，`-50`=0.5 倍）       |
+| `sample_rate`            | `int`    | `24000` | 采样率，可选：`8000`/`16000`/`22050`/`24000`/`32000`/`44100`/`48000` |
+| `tts_probability`        | `int`    | `80`    | 被动模式触发概率（`0`~`100`，超范围会自动截断）                       |
+| `max_length`             | `int`    | `50`    | 文本长度上限（被动模式始终生效；工具模式由 `enable_tts_tool_minmax` 控制） |
+| `min_length`             | `int`    | `5`     | 文本长度下限（被动模式始终生效；工具模式由 `enable_tts_tool_minmax` 控制） |
+| `blocked_words`          | `list`   | `[]`    | 屏蔽词列表，文本包含任一屏蔽词时跳过 TTS                              |
+| `enable_llm_tool`        | `bool`   | `true`  | 是否启用 `clone_tts` 工具，允许 AI 主动调用语音合成                   |
+| `enable_tts_tool_minmax` | `bool`   | `true`  | 工具模式下是否也应用 `min_length` / `max_length` 字数限制             |
 | `enable_llm_response` | `bool`   | `false` | ![1773150294051.png](https://free.picui.cn/free/2026/03/11/69b0f7fc468c3.png) |
+| `llm_recognition`        | `string` | `""`    | 语气识别模型 Provider ID，留空时使用当前会话的默认模型                |
 
 ---
 
@@ -97,6 +100,7 @@
 | 🛠️ LLM 工具支持 | 允许 LLM 主动调用 `clone_tts` 工具进行语音回复     |
 | 🎛️ 音频参数可调 | 支持调节语速、音量、采样率                         |
 | 🎲 概率触发     | 可配置 0–100% 的被动回复概率，灵活控制语音频率     |
+| 📝 屏蔽词列表   | 配置 `blocked_words` 可以屏蔽指定文本              |
 | 📏 长度限制     | 被动模式下可设置字数上下限，避免长文本或短语转语音 |
 | ⚡ 流式合成     | 使用 SSE 流式接口获取音频，响应更迅速              |
 | 🛡️ 防御性设计   | 完善的配置校验、异常捕获与日志，运行稳定           |

@@ -45,6 +45,11 @@
         "description": "TTS 的最小字数，小于该字数不使用语音",
         "default": 5
     },
+    "blocked_words": {
+        "type": "list",
+        "description": "屏蔽词列表,包含这些词的回复将不使用 TTS",
+        "default": []
+    },
     "enable_tts": {
         "type": "bool",
         "description": "启用该插件",
