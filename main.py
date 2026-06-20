@@ -109,6 +109,11 @@ class CloneTTSPlugin(Star):
                 return
 
             result = event.get_result()
+
+            # 跳过指令返回
+            if not result.is_llm_result():
+                return
+                
             if not result or not result.chain:
                 logger.debug("本次消息没有结果，跳过 TTS")
                 return

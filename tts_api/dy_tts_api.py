@@ -14,7 +14,7 @@ async def tts_http_stream(self, text,context_texts):
     headers = {
         "X-Api-App-Id": self.appid,
         "X-Api-Access-Key": self.access_token,
-        "X-Api-Resource-Id": "seed-icl-2.0",
+        "X-Api-Resource-Id": "seed-icl-2.0" if self.voice_type.startswith("S_") else "seed-tts-2.0", # 支持预设音色
         "Content-Type": "application/json",
         "Connection": "keep-alive",
     }
@@ -41,6 +41,7 @@ async def tts_http_stream(self, text,context_texts):
         },
         "req_params": {
             "text": text,
+            "model": "seed-tts-2.0-expressive", # seed-tts-2.0-standard不支持使用语音指令context_texts
             "speaker": self.voice_type,
             "audio_params": {
                 "format": "mp3",
