@@ -4,6 +4,13 @@
   <img src="https://count.getloli.com/@astrbotpluginclonetts?name=astrbotpluginclonetts&theme=miku&padding=7&offset=0&align=center&scale=0.3&pixelated=1&darkmode=auto" alt="visitor count" />
 </p>
 
+## v3.0.0 (2026-08-20)
+
+- 🚀 **接口升级**：从 SSE 接口升级为 HTTP Chunked 单向流式接口（`/api/v3/tts/unidirectional`）
+- 🔑 **鉴权简化**：改用新版控制台的 API Key 鉴权，配置项 `appid` + `access_token` 合并为单个 `api_key`（不兼容变更，升级后需重新配置）
+- ⚙️ 新增 `X-Api-Request-Id` 请求头，便于问题定位
+- 📝 README 凭证获取教程重写为新版控制台流程（API Key + 音色库），移除旧版控制台截图教程
+
 ## v2.3.1 (2026-04-21)
 
 - 🚀新增屏蔽词列表,模型输出包含屏蔽词时将不再使用tts

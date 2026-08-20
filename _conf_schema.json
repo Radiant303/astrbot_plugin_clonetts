@@ -1,12 +1,7 @@
 {
-    "appid": {
+    "api_key": {
         "type": "string",
-        "description": "火山引擎应用 AppID",
-        "default": ""
-    },
-    "access_token": {
-        "type": "string",
-        "description": "火山引擎 Access Token",
+        "description": "火山引擎 API Key（控制台 > API Key管理 获取）",
         "default": ""
     },
     "voice_type": {

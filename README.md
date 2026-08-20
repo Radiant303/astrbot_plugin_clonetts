@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Radiant303/astrbot_plugin_clonetts"><img src="https://img.shields.io/badge/version-v2.3.2-blue" alt="version" /></a>
+  <a href="https://github.com/Radiant303/astrbot_plugin_clonetts"><img src="https://img.shields.io/badge/version-v3.0.0-blue" alt="version" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-green" alt="license" /></a>
   <a href="https://docs.astrbot.app/dev/star/plugin-new.html"><img src="https://img.shields.io/badge/docs-AstrBot-orange" alt="docs" /></a>
 </p>
@@ -26,33 +26,36 @@
 1. **AstrBot** ≥ v4.5.0 已安装并正常运行
 2. **火山引擎账号**，并开通 [语音合成服务](https://console.volcengine.com/speech/new/overview?projectName=default)
 3. 在火山引擎控制台创建 **音色克隆** 音色，获取以下凭证：
-   - `appid` — 应用 AppID
-   - `access_token` — API 访问令牌 (Access Key)
+   - `api_key` — API Key（[控制台 > API Key管理](https://console.volcengine.com/speech/new/setting/apikeys?projectName=default) 获取）
    - `voice_type` — 克隆音色 ID (Speaker ID)
 
 ## 📖 凭证获取教程
 
-### 1. 点击打开火山引擎 https://console.volcengine.com/speech/new/overview?projectName=default 登录并实名认证
+### 第一步：开通服务
 
-### 2. 回到刚刚的[火山引擎](https://console.volcengine.com/speech/new/overview?projectName=default)
+1. 打开 [火山引擎语音控制台](https://console.volcengine.com/speech/new/overview?projectName=default)，登录并完成实名认证
+2. 在控制台开通 **语音合成大模型** 与 **声音复刻大模型** 服务
 
-### 3. ![1773151167896.png](https://free.picui.cn/free/2026/03/11/69b0f7fc9339c.png)
+![开通服务](https://free.picui.cn/free/2026/03/11/69b0f7fc9339c.png)
 
-### 4. ![1773151183200.png](https://free.picui.cn/free/2026/03/11/69b0f7fc9937c.png)
+### 第二步：创建克隆音色（获取 `voice_type`）
 
-### 5. 上传音色(请注意要选择"我要复刻中文音色",其他语种火山引擎V3接口暂不支持,但是实际声音效果相同,所以如果需要复刻其他语种的音色也可以选择这个选项)
+1. 进入 [控制台 > 音色库](https://console.volcengine.com/speech/new/voices?projectName=default)
+2. 点击 **声音复刻**，上传一段清晰的人声音频进行克隆（建议单人、无背景噪声）
+3. 请注意选择"我要复刻中文音色"，其他语种火山引擎 V3 接口暂不支持（实际声音效果相同，需要复刻其他语种的音色也可以选择这个选项）
 
-### ![1773151195702.png](https://free.picui.cn/free/2026/03/11/69b0f7fcce286.png)
+![声音复刻](https://free.picui.cn/free/2026/03/11/69b0f7fcce286.png)
 
-### 6. 成功后返回这个页面 并切换到旧版
+4. 训练完成后，在音色库中复制该音色的 **音色 ID**，填入配置中的 `voice_type`（复刻音色通常以 `S_` 开头）
 
-### ![1773151225265.png](https://free.picui.cn/free/2026/03/11/69b0f7fcb8ba4.png)
+![音色ID](https://free.picui.cn/free/2026/08/20/6a86f26e47867.png)
 
-### 7. ![1773151231623.png](https://free.picui.cn/free/2026/03/11/69b0f7fe6eb1e.png)
+### 第三步：获取 API Key（获取 `api_key`）
 
-### 8. 划到底部
+1. 进入 [控制台 > API Key管理](https://console.volcengine.com/speech/new/setting/apikeys?projectName=default)
+2. 点击 **创建 API Key**，复制生成的 Key 填入配置中的 `api_key`
 
-### 9. ![1773151245322.png](https://free.picui.cn/free/2026/03/11/69b0f7fea5d20.png)
+![API Key](https://free.picui.cn/free/2026/08/20/6a86f2ac43aa0.png)
 
 ---
 
@@ -63,8 +66,7 @@
 | 参数                     | 类型     | 默认值  | 说明                                                                 |
 | ------------------------ | -------- | ------- | -------------------------------------------------------------------- |
 | `enable_tts`             | `bool`   | `true`  | 全局 TTS 开关，关闭后不进行任何语音合成                               |
-| `appid`                  | `string` | `""`    | 火山引擎应用 AppID **（必填）**                                      |
-| `access_token`           | `string` | `""`    | 火山引擎 Access Token **（必填）**                                   |
+| `api_key`                | `string` | `""`    | 火山引擎 API Key（控制台 > API Key管理 获取）**（必填）**             |
 | `voice_type`             | `string` | `""`    | 克隆音色 ID（Speaker ID）**（必填）**                               |
 | `speed_ratio`            | `int`    | `0`     | 语速，范围 `-50` ~ `100`（`0`=正常，`100`=2 倍，`-50`=0.5 倍）       |
 | `loudness_rate`          | `int`    | `0`     | 音量，范围 `-50` ~ `100`（`0`=正常，`100`=2 倍，`-50`=0.5 倍）       |
@@ -102,7 +104,7 @@
 | 🎲 概率触发     | 可配置 0–100% 的被动回复概率，灵活控制语音频率     |
 | 📝 屏蔽词列表   | 配置 `blocked_words` 可以屏蔽指定文本              |
 | 📏 长度限制     | 被动模式下可设置字数上下限，避免长文本或短语转语音 |
-| ⚡ 流式合成     | 使用 SSE 流式接口获取音频，响应更迅速              |
+| ⚡ 流式合成     | 使用 HTTP Chunked 流式接口获取音频，响应更迅速      |
 | 🛡️ 防御性设计   | 完善的配置校验、异常捕获与日志，运行稳定           |
 
 ---
@@ -113,7 +115,7 @@
 astrbot_plugin_clonetts/
 ├── main.py              # 插件主逻辑与工具定义
 ├── tts_api/
-│   └── dy_tts_api.py    # 封装火山引擎 SSE 接口
+│   └── dy_tts_api.py    # 封装火山引擎 HTTP Chunked 接口
 ├── metadata.yaml        # 插件元信息
 ├── _conf_schema.json    # 配置项定义
 ├── README.md            # 本文档
@@ -126,7 +128,7 @@ astrbot_plugin_clonetts/
 
 ### 插件已启用但没有语音回复
 
-1. 确认 `appid`、`access_token`、`voice_type` 已正确配置。
+1. 确认 `api_key`、`voice_type` 已正确配置。
 2. 检查 `tts_probability` 是否过低，或回复字数超出了限制。
 3. 查看 AstrBot 运行日志，寻找以 `CloneTTS` 开头的错误提示。
 
@@ -157,5 +159,3 @@ astrbot_plugin_clonetts/
 [![Star History Chart](https://api.star-history.com/image?repos=Radiant303/astrbot_plugin_clonetts&type=date&legend=top-left)](https://www.star-history.com/?repos=Radiant303%2Fastrbot_plugin_clonetts&type=date&legend=top-left)
 
 </div>
-
-

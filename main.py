@@ -20,7 +20,7 @@ from .tts_api.dy_tts_api import tts_http_stream
     "astrbot_plugin_clonetts",
     "Radiant303",
     "基于火山引擎音色克隆(ICL)的文本转语音插件",
-    "2.3.0",
+    "3.0.0",
 )
 class CloneTTSPlugin(Star):
     def __init__(self, context: Context, config: AstrBotConfig):
@@ -55,8 +55,7 @@ class CloneTTSPlugin(Star):
             self.min_length = 5
 
         # 凭证类字段：确保为非空字符串
-        self.appid = str(config.get("appid") or "")
-        self.access_token = str(config.get("access_token") or "")
+        self.api_key = str(config.get("api_key") or "")
         self.voice_type = str(config.get("voice_type") or "")
 
         # 音频参数
@@ -78,8 +77,7 @@ class CloneTTSPlugin(Star):
         missing = [
             name
             for name, val in [
-                ("appid", self.appid),
-                ("access_token", self.access_token),
+                ("api_key", self.api_key),
                 ("voice_type", self.voice_type),
             ]
             if not val
@@ -100,7 +98,7 @@ class CloneTTSPlugin(Star):
             if not self.enable_tts:
                 return
 
-            if not self.appid or not self.access_token or not self.voice_type:
+            if not self.api_key or not self.voice_type:
                 logger.debug("配置未全，跳过 TTS")
                 return
 
