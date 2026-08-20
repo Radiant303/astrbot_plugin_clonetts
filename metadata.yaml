@@ -4,3 +4,8 @@ desc: 配置极其简单的基于火山引擎音色克隆的文本转语音插�
 version: v3.0.0 # 插件版本号
 author: Radiant303 # 作者
 repo: https://github.com/Radiant303/astrbot_plugin_clonetts # 插件的仓库地址
+tags:
+  - 语音合成
+  - 音色克隆
+  - tts
+  - 火山引擎
