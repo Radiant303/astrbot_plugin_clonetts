@@ -4,7 +4,7 @@
   <img src="https://count.getloli.com/@astrbotpluginclonetts?name=astrbotpluginclonetts&theme=miku&padding=7&offset=0&align=center&scale=0.3&pixelated=1&darkmode=auto" alt="visitor count" />
 </p>
 
-## v3.0.1 (2026-08-20)
+## v3.0.2 (2026-08-20)
 
 - 🚀 **接口升级**：从 SSE 接口升级为 HTTP Chunked 单向流式接口（`/api/v3/tts/unidirectional`）
 - 🔑 **鉴权简化**：改用新版控制台的 API Key 鉴权，配置项 `appid` + `access_token` 合并为单个 `api_key`（不兼容变更，升级后需重新配置）
