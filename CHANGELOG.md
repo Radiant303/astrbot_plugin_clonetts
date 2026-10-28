@@ -4,6 +4,10 @@
   <img src="https://count.getloli.com/@astrbotpluginclonetts?name=astrbotpluginclonetts&theme=miku&padding=7&offset=0&align=center&scale=0.3&pixelated=1&darkmode=auto" alt="visitor count" />
 </p>
 
+## v3.0.3 (2026-08-20)
+
+- 🚀 **优化语气效果**
+
 ## v3.0.2 (2026-08-20)
 
 - 🚀 **接口升级**：从 SSE 接口升级为 HTTP Chunked 单向流式接口（`/api/v3/tts/unidirectional`）

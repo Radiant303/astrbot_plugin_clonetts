@@ -3,7 +3,7 @@ display_name: 克隆语音 # 用于展示的名字，可以是方便人类阅读
 logo: ./logo.png
 short_desc: 配置极其简单的基于火山引擎音色克隆的文本转语音插件
 desc: 使用自定义克隆音色让你的聊天机器人开口"说话"。
-version: v3.0.2 # 插件版本号
+version: v3.0.3 # 插件版本号
 author: Radiant303 # 作者
 repo: https://github.com/Radiant303/astrbot_plugin_clonetts # 插件的仓库地址
 support_platforms:
