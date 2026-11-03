@@ -1,0 +1,109 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out tagged commit
+        uses: actions/checkout@v4
+
+      - name: Validate version and extract release notes
+        shell: bash
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          python - <<'PY'
+          import ast
+          import os
+          import re
+          from pathlib import Path
+
+          tag = os.environ["TAG"]
+          if not re.fullmatch(r"v\d+\.\d+\.\d+", tag):
+              raise SystemExit(f"Tag must use vMAJOR.MINOR.PATCH format: {tag}")
+
+          version = tag[1:]
+          errors = []
+
+          metadata = Path("metadata.yaml").read_text(encoding="utf-8")
+          metadata_version = re.search(
+              r"(?m)^version:\s*(v\d+\.\d+\.\d+)\b", metadata
+          )
+          if not metadata_version or metadata_version.group(1) != tag:
+              actual = metadata_version.group(1) if metadata_version else "missing"
+              errors.append(f"metadata.yaml version is {actual}, expected {tag}")
+
+          main_source = Path("main.py").read_text(encoding="utf-8")
+          tree = ast.parse(main_source)
+          register_version = next(
+              (
+                  node.args[3].value
+                  for node in ast.walk(tree)
+                  if isinstance(node, ast.Call)
+                  and isinstance(node.func, ast.Name)
+                  and node.func.id == "register"
+                  and len(node.args) >= 4
+                  and isinstance(node.args[3], ast.Constant)
+              ),
+              None,
+          )
+          if register_version != version:
+              errors.append(
+                  f"main.py register version is {register_version}, expected {version}"
+              )
+
+          readme = Path("README.md").read_text(encoding="utf-8")
+          if f"version-v{version}-blue" not in readme:
+              errors.append(f"README.md version badge does not match {tag}")
+
+          changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
+          notes_match = re.search(
+              rf"(?ms)^## {re.escape(tag)}(?: \([^\n]+\))?\n(.*?)(?=^## v|\Z)",
+              changelog,
+          )
+          notes = notes_match.group(1).strip() if notes_match else ""
+          if not notes:
+              errors.append(f"CHANGELOG.md has no release notes for {tag}")
+
+          if errors:
+              raise SystemExit("Release validation failed:\n- " + "\n- ".join(errors))
+
+          Path("release_notes.md").write_text(notes + "\n", encoding="utf-8")
+          print(f"Validated {tag} and extracted release notes")
+          PY
+
+      - name: Build plugin archive
+        shell: bash
+        run: |
+          git archive \
+            --format=zip \
+            --prefix=astrbot_plugin_clonetts/ \
+            --output=astrbot_plugin_clonetts.zip \
+            HEAD
+          python -m zipfile -t astrbot_plugin_clonetts.zip
+
+      - name: Create GitHub Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release create "$TAG" \
+            astrbot_plugin_clonetts.zip \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "克隆语音 ${TAG#v}" \
+            --notes-file release_notes.md \
+            --verify-tag \
+            --latest
