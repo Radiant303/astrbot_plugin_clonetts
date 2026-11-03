@@ -4,6 +4,11 @@
   <img src="https://count.getloli.com/@astrbotpluginclonetts?name=astrbotpluginclonetts&theme=miku&padding=7&offset=0&align=center&scale=0.3&pixelated=1&darkmode=auto" alt="visitor count" />
 </p>
 
+## v3.0.4 (2026-11-03)
+
+- **优化语音指令**：对齐火山引擎官方 `[#...]` 格式与示例，支持更自然的情绪、语气和句内情感变化描述。
+- **统一生成规则**：被动回复与 LLM 工具共用提示词，按需选择语音控制维度，避免过度堆砌。
+
 ## v3.0.3 (2026-08-20)
 
 - 🚀 **优化语气效果**
